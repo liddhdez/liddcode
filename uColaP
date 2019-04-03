@@ -1,6 +1,6 @@
 UNIT uColaP; 
 INTERFACE
-	USES uElem, uPrioridad; 
+	USES uElem, uPrioridad, uCola;
 	TYPE 
 		TColaP = ^TNodoP; 
 		TNodoP = RECORD
@@ -10,7 +10,7 @@ INTERFACE
 		END; 
 	PROCEDURE CrearVacia (VAR c: TColaP);
 	PROCEDURE Insertar (VAR c: TColaP; e: TElem);
-	PROCEDURE BorrarElem (VAR c:TColaP; e: TElem); 
+	PROCEDURE BorrarElem (VAR c:TColaP; p:TPrioridad);
 	FUNCTION EsVacia (c: TColaP): Boolean; 
 	PROCEDURE PrimeroCola (c: TColaP; VAR e: TElem); 
 	PROCEDURE Prioridad (VAR p: TPrioridad; c: TColaP; e:TElem); 
@@ -43,7 +43,7 @@ IMPLEMENTATION
 					uPrioridad.Asignar(nuevo^.prioridad, p);
 					nuevo^.sig:= aux;
 					anterior^.sig:=aux;   
-					uCola.CrearColaVacia(nuevo^.cola); 
+					uCola.CrearVacia(nuevo^.cola);
 					uCola.Insertar(colaP^.cola, e); 
 				END;  
 			END
@@ -53,7 +53,7 @@ IMPLEMENTATION
 				uPrioridad.Asignar(nuevo^.prioridad, p); 
 				aux^.sig:=nuevo; 
 				nuevo^.sig:NIL; 
-				uCola.CrearColaVacia(nuevo^.cola); 
+				uCola.CrearVacia(nuevo^.cola);
 				uCola.Insertar(colaP^.cola, e); 
 				anterior^.sig:=aux; 
 			END; 
@@ -63,12 +63,12 @@ IMPLEMENTATION
 			new(colaP); 
 			uPrioridad.Asignar(colaP^.prioridad, p); 
 			colaP^.sig:=NIL; 
-			uCola.CrearColaVacia(colaP^.cola); 
+			uCola.CrearVacia(colaP^.cola);
 			uCola.Insertar(colaP^.cola, e); 			
 		END; 
 	END; 
 
-	PROCEDURE BorrarElem (VAR c:TColaP; e: TElem; p: TPriori); 
+	PROCEDURE BorrarElem (VAR c:TColaP; p: TPriori);
 	VAR
 		aux: TColaP; 
 	BEGIN
@@ -79,7 +79,7 @@ IMPLEMENTATION
 				aux:=aux^.sig; 
 			END; 
 			IF (aux<>NIL) THEN BEGIN
-				uCola.BorrarElem(c^.cola, e); 
+				uCola.Eliminar(c^.cola);
 			END; 
 		END; 
 	END; 
@@ -106,7 +106,7 @@ IMPLEMENTATION
 	BEGIN
 		IF NOT EsVacia(c) THEN BEGIN
 			aux:=c; 
-			WHILE (aux<>NIL) AND (NOT uCola.Pertenece(e, aux^.cola)) DO BEGIN
+			WHILE (aux<>NIL) AND (NOT uCola.Pertenece(e, aux^.cola)) DO BEGIN {MIRAR}
 				aux:= aux^.sig; 
 			END; 
 			IF aux<>NIL THEN BEGIN
