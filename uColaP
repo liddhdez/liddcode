@@ -1,0 +1,128 @@
+UNIT uColaP; 
+INTERFACE
+	USES uElem, uPrioridad; 
+	TYPE 
+		TColaP = ^TNodoP; 
+		TNodoP = RECORD
+			priori: TPrioridad; 
+			cola: TCola; 
+			sig: TColaP; 
+		END; 
+	PROCEDURE CrearVacia (VAR c: TColaP);
+	PROCEDURE Insertar (VAR c: TColaP; e: TElem);
+	PROCEDURE BorrarElem (VAR c:TColaP; e: TElem); 
+	FUNCTION EsVacia (c: TColaP): Boolean; 
+	PROCEDURE PrimeroCola (c: TColaP; VAR e: TElem); 
+	PROCEDURE Prioridad (VAR p: TPrioridad; c: TColaP; e:TElem); 
+	PROCEDURE MostrarCola (c: TColaP);
+	
+IMPLEMENTATION
+	PROCEDURE CrearVacia (VAR c: TColaP);
+	BEGIN
+		c:=NIL; 
+	END; 
+
+	PROCEDURE Insertar (VAR colaP: TColaP; e: TElem; p: TPrioridad);
+	VAR
+		aux, nuevo, antetior: TColaP; 
+		
+	BEGIN
+		IF NOT EsVacia(colaP) THEN BEGIN
+			aux:=colaP; 
+			WHILE (aux<>NIL) AND (NOT uPrioridad.Menor(aux^.prioridad, p)) AND (NOT uPrioridad.Igual(aux^.prioridad, p)) DO
+			BEGIN
+				anterior:=aux; 
+				aux:= aux^.sig; 
+			END; 
+			IF (aux<>NIL) THEN 
+			BEGIN
+				IF (uPrioridad.Igual(aux^.prioridad, p)) THEN 
+					uCola.Insertar(colaP^.cola, elem)
+				ELSE(uPrioridad.Menor(aux^.prioridad, p)) THEN BEGIN
+					new (nuevo); 
+					uPrioridad.Asignar(nuevo^.prioridad, p);
+					nuevo^.sig:= aux;
+					anterior^.sig:=aux;   
+					uCola.CrearColaVacia(nuevo^.cola); 
+					uCola.Insertar(colaP^.cola, e); 
+				END;  
+			END
+			ELSE {CUANDO ES LA ULTIMA PRIORIDAD, ES NUEVA Y TODAS LAS DEMAS SON MAYORES}
+			BEGIN
+				new (nuevo); 
+				uPrioridad.Asignar(nuevo^.prioridad, p); 
+				aux^.sig:=nuevo; 
+				nuevo^.sig:NIL; 
+				uCola.CrearColaVacia(nuevo^.cola); 
+				uCola.Insertar(colaP^.cola, e); 
+				anterior^.sig:=aux; 
+			END; 
+		END
+		ELSE 
+		BEGIN
+			new(colaP); 
+			uPrioridad.Asignar(colaP^.prioridad, p); 
+			colaP^.sig:=NIL; 
+			uCola.CrearColaVacia(colaP^.cola); 
+			uCola.Insertar(colaP^.cola, e); 			
+		END; 
+	END; 
+
+	PROCEDURE BorrarElem (VAR c:TColaP; e: TElem; p: TPriori); 
+	VAR
+		aux: TColaP; 
+	BEGIN
+
+		IF NOT EsVacia (c) THEN BEGIN
+			aux:= c; 
+			WHILE (aux<>NIL) AND (NOT uPrioridad.Igual(aux^.prioridad, p)) DO BEGIN
+				aux:=aux^.sig; 
+			END; 
+			IF (aux<>NIL) THEN BEGIN
+				uCola.BorrarElem(c^.cola, e); 
+			END; 
+		END; 
+	END; 
+	
+	FUNCTION EsVacia (c: TColaP): Boolean; 
+	BEGIN
+		EsVacia:= c=NIL; 
+	END; 		
+
+	PROCEDURE PrimeroCola (c: TColaP; VAR e: TElem);
+	VAR
+		aux: TColaP; 
+	BEGIN
+		IF NOT EsVacia (c) THEN BEGIN
+			aux:=c; 
+			e:=uCola.Primero(aux^.cola,e);
+			END; 
+		END; 
+	END; 
+	
+	PROCEDURE Prioridad (VAR p: TPrioridad; c: TColaP; e:TElem); 
+	VAR
+		aux: TColaP; 
+	BEGIN
+		IF NOT EsVacia(c) THEN BEGIN
+			aux:=c; 
+			WHILE (aux<>NIL) AND (NOT uCola.Pertenece(e, aux^.cola)) DO BEGIN
+				aux:= aux^.sig; 
+			END; 
+			IF aux<>NIL THEN BEGIN
+				p:=aux^.prioridad; 	
+			END; 
+		END; 
+	END; 
+
+	PROCEDURE MostrarCola (c: TColaP);
+	VAR
+		aux: TColaP;
+	BEGIN
+		IF NOT EsVacia(c) THEN BEGIN
+			aux:=c;
+			WHILE (aux<>NIL) DO BEGIN
+				writeln(uCola.MostrarCola(aux^.cola));
+			END;
+		END;
+	END;
