@@ -28,13 +28,13 @@ IMPLEMENTATION
 	PROCEDURE Insertar (VAR cola: TCola; elem: TElem);
 	{Al tratarse de una cola debemos insertar los elems por el final}
 	VAR
-		nuevo:^TPNodo;
+		nuevo:TPNodo;
 	BEGIN
 			new (nuevo);
 			nuevo^.e:=elem;
 		IF NOT EsVacia(cola) THEN BEGIN
 			cola.fin^.sig:=nuevo;
-			nuevo:= fin;
+			nuevo:= cola.fin;
 		END
 		ELSE BEGIN
 			cola.ini:=nuevo;
@@ -57,13 +57,13 @@ IMPLEMENTATION
 
 	PROCEDURE Eliminar(VAR cola: TCola);
 	VAR
-		aux:TCola;
+		aux:TPNodo;
 	BEGIN
 		{Al ser una cola solo podremos borrar los del inicio}
 		IF NOT EsVacia(cola) THEN BEGIN
 			aux:=cola.ini;
 			cola.ini:=cola.ini^.sig;
-			IF cola.principio = NIL THEN BEGIN {Solo habia un elem en la cola}
+			IF cola.ini = NIL THEN BEGIN {Solo habia un elem en la cola}
 				cola.fin:=NIL;
 			END;
 			dispose(aux);
