@@ -1,0 +1,71 @@
+UNIT uCola;
+INTERFACE
+	USES uElem;
+	TYPE
+		TPNodo= ^TNodo;
+		TNodo = RECORD
+			e: TElem;
+			sig: TPNodo;
+		END;
+		TCola = RECORD {por quÃ© se plantea asi}
+			ini: TPNodo;
+			fin: TPNodo;
+		END;
+	PROCEDURE CrearVacia(VAR cola: TCola);
+	PROCEDURE Insertar(VAR cola: TCola; elem: TElem);
+	PROCEDURE Primero(cola: TCola; VAR elem: TElem);
+	FUNCTION EsVacia(cola: TCola): boolean;
+	PROCEDURE Eliminar(VAR cola: TCola);
+	PROCEDURE MostrarCola (cola: TCola);
+
+IMPLEMENTATION
+	PROCEDURE CrearVacia(VAR cola: TCola);
+	BEGIN
+		cola.ini:=NIL;
+		cola.fin:=NIL;
+	END;
+
+	PROCEDURE Insertar (VAR cola: TCola; elem: TElem);
+	{Al tratarse de una cola debemos insertar los elems por el final}
+	VAR
+		nuevo:^TPNodo;
+	BEGIN
+			new (nuevo);
+			nuevo^.e:=elem;
+		IF NOT EsVacia(cola) THEN BEGIN
+			cola.fin^.sig:=nuevo;
+			nuevo:= fin;
+		END
+		ELSE BEGIN
+			cola.ini:=nuevo;
+			cola.fin:=nuevo;
+		END;
+		nuevo^.sig:=NIL; {OJO IMPORTANTE}
+	END;
+
+	PROCEDURE Primero(cola: TCola; VAR elem: TElem);
+	BEGIN
+		IF NOT EsVacia (cola) THEN BEGIN
+			elem:=cola.ini^.e;
+		END;
+	END;
+
+	FUNCTION EsVacia(cola: TCola): boolean;
+	BEGIN
+		EsVacia:= cola.ini=NIL;
+	END;
+
+	PROCEDURE Eliminar(VAR cola: TCola);
+	VAR
+		aux:TCola;
+	BEGIN
+		{Al ser una cola solo podremos borrar los del inicio}
+		IF NOT EsVacia(cola) THEN BEGIN
+			aux:=cola.ini;
+			cola.ini:=cola.ini^.sig;
+			IF cola.principio = NIL THEN BEGIN {Solo habia un elem en la cola}
+				cola.fin:=NIL;
+			END;
+			dispose(aux);
+		END;
+	END;
