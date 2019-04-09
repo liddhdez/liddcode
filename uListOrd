@@ -1,0 +1,128 @@
+UNIT uListaOrd;
+
+INTERFACE
+	USES uElem, uListDin;
+
+	TYPE
+		tListaOrd = tLista;
+
+	PROCEDURE CrearListaOrdVacia(VAR l:tListaOrd);
+	PROCEDURE InsertarOrd(elem:tElem; VAR l:tListaOrd);
+	PROCEDURE PrimerElemento(lista:tListaOrd; VAR elem:tElem);
+	PROCEDURE Resto(lista:tListaOrd; VAR resto:tListaOrd);
+	PROCEDURE Copiar(lista:tListaOrd; VAR copia:tListaOrd);
+	FUNCTION EsVacia(lista:tListaOrd):boolean;
+	FUNCTION Longitud(lista:tListaOrd):integer;
+	PROCEDURE Ultimo(lista:tListaOrd; VAR e:tElem);
+	PROCEDURE Mezclar(l1, l2: tListaOrd; VAR nueva: tListaOrd);
+	PROCEDURE BorrarElemento(elem:tElem; VAR lista:tListaOrd);
+	PROCEDURE ImprimirLista(lista:tListaOrd);
+	PROCEDURE Destruir(VAR lista:tListaOrd);
+	PROCEDURE GetElemPos(lista:tListaOrd; pos:integer; VAR e:tElem);
+
+IMPLEMENTATION
+	PROCEDURE CrearListaOrdVacia(VAR l:tListaOrd);
+	BEGIN
+		l:=NIL;
+	END;
+
+	PROCEDURE InsertarOrd(elem: tElem; VAR l:tListaOrd);
+	VAR
+		aux, nuevo: tListaOrd;
+	BEGIN
+		 new(nuevo);
+		 Asignar(nuevo^.e, elem);
+		 IF (NOT EsVacia(l))THEN BEGIN
+			aux:=lista;
+			IF (lista<nuevo^.e) THEN BEGIN
+				WHILE (aux<>NIL) AND (aux^.e < elem) AND (aux^.sig^.e < elem) DO BEGIN
+					aux:=aux^sig;
+				END;
+				nuevo^.sig:=aux^.sig;
+				aux^.sig:=nuevo;
+			END
+			ELSE BEGIN
+				nuevo^.sig:=lista;
+				lista:=nuevo;
+			END;
+		END
+		ELSE
+			nuevo^.sig:=l
+			l:=nuevo;
+	 END;
+
+	PROCEDURE Mezclar(l1, l2: tListaOrd; VAR nueva: tListaOrd);
+	VAR
+		nodoaux, aux: tListaOrd;
+	BEGIN
+		IF EsVacia(l1) THEN
+		BEGIN
+			Copiar(l2, nueva);
+		END
+		ELSE IF EsVacia(l2) THEN BEGIN
+			Copiar(l1, nueva);
+		END
+		ELSE BEGIN
+		 Copiar(l1, nueva);
+		 Copiar(l2, aux);
+		 nodoaux:=l1;
+		 WHILE (nodoaux^.sig<>NIL) DO BEGIN
+			nodoaux:=nodoaux^.sig;
+		 END;
+		 IF nodoaux^.sig=NIL THEN BEGIN
+			nodoaux^.sig:=aux;
+		 END;
+		END;
+	END;
+
+	PROCEDURE PrimerElemento(lista:TListaOrd; VAR elem:tElem);
+	BEGIN
+		uListDin.Primero(lista, elem);
+	END;
+
+	PROCEDURE Resto(lista: TListaOrd; VAR resto: TListaOrd);
+	BEGIN
+		uListDin.Resto(lista, resto);
+	END;
+
+	PROCEDURE Copiar(lista:tListaOrd; VAR copia:tListaOrd);
+	BEGIN
+		uListDin.Copiar(lista, copia);
+	END;
+
+	FUNCTION EsVacia(lista:tListaOrd):boolean;
+	BEGIN
+		EsVacia:= lista=NIL;
+	END;
+
+	FUNCTION Longitud(lista:tListaOrd):integer;
+	BEGIN
+		uListDin.Longitud(lista);
+	END;
+
+	PROCEDURE Ultimo(lista:tListaOrd; VAR e:tElem);
+	BEGIN
+		uListDin.Ultimo(lista, e);
+	END;
+
+	PROCEDURE BorrarElemento(elem:tElem; VAR lista:tListaOrd);
+	BEGIN
+		uListDin.Eliminar(elem, lista);
+	END;
+
+	PROCEDURE ImprimirLista(lista:tListaOrd);
+	BEGIN
+		uListDin.ImprimirLista(lista);
+	END;
+
+	PROCEDURE Destruir(VAR lista:tListaOrd);
+	BEGIN
+		uListDin.Destruir(lista);
+	END;
+
+	PROCEDURE GetElemPos(lista:tListaOrd; pos:integer; VAR e:tElem);
+	BEGIN
+		uListDin.GetElemPos(lista, pos, e);
+	END;
+
+END.
