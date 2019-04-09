@@ -1,0 +1,247 @@
+UNIT uLIstaEst;
+INTERFACE
+	CONST N=100; {Se almacenan 100 alumnos, por ej}
+	USES uElem;
+	TYPE
+		TRango = 1..N;
+		TPuntero = ^TNodo;
+		TNodo = RECORD
+			elem: TElem;
+			sig: TPuntero;
+		END;
+
+		TAlmacen = ARRAY [TRango] OF TPuntero;
+		TLista = RECORD
+			pOcupadas: TPuntero; {Cabecera}
+			pLibres: TPuntero;  {La primera de las libres}
+			almacen: TAlmacen;
+		END;
+
+	PROCEDURE CrearVacia (VAR l: TLista);
+	PROCEDURE Construir (e: TElem; VAR l: TLista);
+	PROCEDURE Eliminar (e: TElem; VAR l: TLista);
+	FUNCTION EsVacia (l:TLista):boolean;
+	PROCEDURE InsertarFinal(elem: TElem; VAR l: TLista);
+	FUNCTION pertenece (l: TLista; elem: TElem): boolean;
+	PROCEDURE ImprimirLista (l: tLista);
+	FUNCTION longitud(l: TLista): INTEGER;
+	PROCEDURE Primero(lista: TipoLista; VAR elemento: TipoElemento);
+	PROCEDURE Resto(lista: TipoLista; VAR restante: TipoLista);
+	PROCEDURE Ultimo(lista: TipoLista; VAR elemento: TipoElemento);
+	PROCEDURE Concatenar(l1, l2: TipoLista; VAR listaResultado: TipoLista);
+	PROCEDURE Copiar(lista1: TipoLista; VAR lista2: TipoLista);
+	PROCEDURE GetElemPos(l: TLista; pos: integer; VAR e: TElem);
+
+IMPLEMENTATION
+	PROCEDURE CrearVacia (VAR l: TLista);
+	VAR
+		i: INTEGER;
+	BEGIN
+		l.pOcupadas:=0;
+		l.pLibres:=1;
+		{Tenemos que inicializar el puntero sig}
+		FOR i:=1 TO MAX-1 DO BEGIN
+			l.almacen[i].sig:= l.almacen[i+1];
+		END;
+	END;
+
+	{FUNCTION PRIVADO}
+	FUNCTION EstaLlena(l: TLista): boolean;
+	BEGIN
+		EstaLlena:= pLibres=0;
+	END;
+
+	PROCEDURE Construir (e: TElem; VAR l: TLista);
+	VAR
+		aux: TPuntero;
+	BEGIN
+		IF NOT EstaLlena THEN BEGIN
+			l.almacen[l.pLibres].elem:= e;
+			aux:=l.almacen[l.pLibres].sig;
+			l.pOcupadas:=l.pLibres;
+			l.pLibres:=aux;
+		END;
+	END;
+
+	PROCEDURE Eliminar (e: TElem; VAR l: TLista);
+	VAR
+		aux, ant: TPuntero;
+		i: INTEGER;
+		encontrado: boolean;
+	BEGIN
+		encontrado:= FALSE;
+		aux:= pOcupadas; {Igulamos a la cabecera}
+		IF NOT EsVacia(l) THEN BEGIN
+			WHILE (aux<>0) AND (NOT encontrado) DO BEGIN
+				IF l.almacen[aux].elem=e THEN BEGIN
+					encontrado:= TRUE;
+				END
+				ELSE BEGIN
+					ant:=aux;
+					aux:=l.almacen[aux].sig;
+				END;
+			END;
+			IF encontrado THEN BEGIN
+				{PRIMERO TENIENDO EN CUENTA QUE ESTA EN EL MEDIO/FINAL}
+				IF ant<>0{No apuntaria a nada ant} THEN BEGIN
+					l.almacen[ant].sig:= l.almacen[aux].sig;
+				END
+				ELSE BEGIN
+				{Si se trata del primero de la lista}
+					l.pOcupadas:=l.almacen[aux].sig;
+				END;
+				l.almacen[aux].sig:=l.pLibres; {Tenemos que enganchar el resto de pLibres antes de decir q aux es la cabeza de pLibres}
+				l.pLibres:=aux;
+			END;
+		END;
+	END;
+
+	FUNCTION EsVacia (l:TLista):boolean;
+	BEGIN
+		EsVacia:= pOcupadas<>0;
+	END;
+
+	PROCEDURE InsertarFinal(elem: TElem; VAR l: TLista);
+	VAR
+		aux, nuevo: TLista;
+	BEGIN
+		IF NOT EstaLlena(l) THEN BEGIN
+			IF EsVacia(l) THEN BEGIN
+				Construir(elem, l);
+			END
+			ELSE BEGIN
+			{tenemos que recorrer la lista para saber cual es el ultimo pOcupadas}
+				aux:=l.pOcupadas;
+				WHILE l.almacen[aux].sig<>0 DO BEGIN
+					l.almacen[aux]:=l.almacen[aux].sig; {¿?}
+				END;
+				IF l.almacen[aux].sig <> 0 THEN BEGIN
+					nuevo:=pLibres;
+					l.almacen[nuevo].elem:=elem;
+					l.pLibres:=l.almacen[l.pLibres].sig;
+					l.almacen[nuevo].sig:=0; {No apunta a nada porq es el ultimo}
+					l.almacen[aux].sig:=nuevo; {hacemos q el ultimo apunte a nuevo}
+				END;
+			END;
+		END;
+	END;
+
+	FUNCTION pertenece (l: TLista; elem: TElem): boolean;
+	VAR
+		aux: TLista;
+		encontrado: boolean
+	BEGIN
+		encontrado:= FALSE;
+		aux:=l.pOcupadas;
+		WHILE (l.almacen.[aux]<>0)  AND (NOT encontrado) DO BEGIN
+			IF l.almacen[aux].elem = elem THEN BEGIN
+				encontrado:=TRUE;
+			END
+			ELSE BEGIN
+				aux:=l.almacen[aux].sig;
+			END;
+		END;
+		pertenece:=encontrado;
+	END;
+
+	PROCEDURE ImprimirLista (l: tLista);
+	VAR
+		aux: TLista;
+	BEGIN
+		aux:=l.pOcupadas;
+		write('[');
+		IF NOT EsVacia(l) THEN BEGIN
+			WHILE l.almacen[aux].sig<>0 THEN BEGIN
+				uElem.Mostrar(l.almacen[aux].elem);
+				write(',');
+				aux:=l.almacen[aux].sig;
+			END;
+			uElem.Mostrar(l.almacen[aux].elem);
+		END;
+		write(']');
+	END;
+
+	FUNCTION longitud(l: TLista): INTEGER;
+	VAR
+		aux: TLista;
+		cont: integer;
+	BEGIN
+		cont:=0;
+		aux:=l.pOcupadas;
+		IF NOT EsVacia(l) THEN BEGIN
+			WHILE aux<>0 DO BEGIN
+				cont:= cont+1;
+				aux:=l.almacen[aux].sig;
+			END;
+		END;
+		longitud:= contador;
+	END;
+
+	PROCEDURE Primero(lista: TLista; VAR elemento: TElem);
+	BEGIN
+		IF NOT EsVacia(lista) THEN BEGIN
+			elemento:=lista.almacen[lista.pOcupadas].elem;
+		END;
+	END;
+
+	PROCEDURE Resto(lista: TLista; VAR resto: TLista);
+	BEGIN
+		IF NOT EsVacia(lista) THEN BEGIN {No creamos vacia la lista resto porque en copiar se crea}
+			Copiar(lista, resto); {Copiamos la lista 1 en dos}
+			aux:=resto.almacen[resto.pOcupadas].sig;
+			BorrarElemento(resto, resto.almacen[resto.pOcupadas].elemento);
+			resto:=aux;
+		END;
+	END;
+
+	PROCEDURE Ultimo(lista: TLista; VAR elemento: TElem);
+	VAR
+		aux: TLista;
+	BEGIN
+		IF NOT EsVacia(lista) THEN BEGIN
+			aux:=lista.pOcupadas;
+			WHILE lista.almacen[aux].sig<>0 DO BEGIN
+				aux:=lista.almacen[aux].sig;
+			END;
+			elemento:=lista.almacen[aux].elem;
+		END;
+	END;
+
+	PROCEDURE Concatenar( l1, l2: TipoLista; VAR rdo: TipoLista);
+	VAR
+		aux1, aux2: TLista;
+	BEGIN
+		IF (NOT EsVacia(l1)) AND (NOT EsVacia(l2)) THEN BEGIN
+			aux2:=l2.pOcupadas;
+			Copiar(l1, rdo);
+			WHILE aux2<>0 DO BEGIN
+				InsertarFinal(l2.almacen[aux2].elem, rdo);
+				aux2:=l2.almacen[aux2].sig;
+			END
+		ELSE IF (EsVacia(l1)) AND (NOT EsVacia(l2)) BEGIN
+			Copiar(l2, rdo);
+		END
+		ELSE
+			Copiar(l1, rdo);
+	END;
+
+	PROCEDURE Copiar(l1: TLista; VAR l2: TipoLista);
+	VAR
+		aux:TLista;
+	BEGIN
+		CrearVacia(l2);
+		IF NOT EsVacia(l2) THEN BEGIN
+			aux:=l1.pOcupadas;
+			WHILE aux1<>0 DO BEGIN
+				InsertarFinal(l1.almacen[aux1].elem, l2);
+				aux1:=l1.almacen[aux1].sig;
+			END;
+		END;
+	END;
+
+	PROCEDURE GetElemPos(l: TLista; pos: integer; VAR e: TElem);
+	BEGIN
+		e:=l.almacen[pos].elem;
+	END;
+BEGIN
+END.
