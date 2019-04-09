@@ -1,0 +1,51 @@
+UNIT uElem;
+INTERFACE
+	TYPE
+		TAlumno= RECORD
+			nombre: string;
+			nota: real;
+		END;
+		TElem = TAlumno;
+
+PROCEDURE Asignar (VAR elem: TElem; e1: TElem);
+PROCEDURE Leer (VAR elem: TElem);
+FUNCTION Igual (e1, e2: TElem): boolean;
+PROCEDURE Mostrar (e: TElem);
+FUNCTION GetNota (e: TElem): real;
+
+IMPLEMENTATION
+PROCEDURE Asignar (VAR elem: TElem; e1: TElem);
+BEGIN
+	elem:=e1;
+END;
+
+PROCEDURE Leer (VAR elem: TElem);
+BEGIN
+	writeln('Introduzca el nombre del alumno');
+	readln(elem.nombre);
+	writeln('Introduzca la nota del alumno');
+	readln(elem.nota);
+END;
+
+FUNCTION Igual (e1, e2: TElem): boolean;
+VAR
+	iguales: boolean;
+BEGIN
+	iguales:=FALSE;
+	IF (e1.nombre=e2.nombre) AND (e1.nota=e2.nota) THEN
+		iguales:=TRUE;
+	Igual:=iguales;
+END;
+
+PROCEDURE Mostrar (e: TElem);
+BEGIN
+	writeln('Nombre: ', e.nombre);
+	writeln('Nota: ', e.nota);
+END;
+
+FUNCTION GetNota (e: TElem): real;
+BEGIN
+	GetNota:= e.nota;
+END;
+
+END.
