@@ -1,0 +1,39 @@
+PROGRAM main;
+VAR
+	e1, e2, e3, e4, e5, e6: TElem;
+	l: TLista;
+
+PROCEDURE Notas (l: TLista);
+VAR
+	pos1: integer;
+BEGIN
+	pos1:=0;
+	i1:=longitud(l1);
+	IF NOT EsVacia(l1) THEN BEGIN
+		WHILE pos1<i1 DO BEGIN
+			IF (GetNota(GetElemPos(l, pos1, e6))>=5) THEN
+				Mostrar(GetElemPos(l, pos1, e6));
+		END;
+	END;
+END;
+
+BEGIN
+{1. Leer varios alumnos e introducirlos en una lista}
+	Leer(e1);
+	InsertarFinal(e1, l);
+	Leer(e2);
+	InsertarFinal(e2, l);
+	Leer(e3);
+	InsertarFinal(e3, l);
+	Leer(e4);
+	InsertarFinal(e4, l);
+	Leer(e5);
+	InsertarFinal(e5, l);
+
+{2. Mostrar por pantalla alumnos con nota >=5}
+	Notas(l);
+
+
+
+
+END.
